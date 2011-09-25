@@ -1,0 +1,65 @@
+/*
+ * Copyright (C) 2010 - Jeff Johnston
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+
+#include <codeslayer/codeslayer.h>
+#include "autotools-engine.h"
+#include "autotools-menu.h"
+#include "autotools-notebook.h"
+#include "autotools-project-properties.h"
+#include "autotools-projects-popup.h"
+#include <gtk/gtk.h>
+#include <gmodule.h>
+#include <glib.h>
+
+G_MODULE_EXPORT void activate   (CodeSlayer *codeslayer);
+G_MODULE_EXPORT void deactivate (CodeSlayer *codeslayer);
+
+static GtkWidget *menu;
+static GtkWidget *notebook;
+static GtkWidget *project_properties;
+static GtkWidget *projects_popup;
+static AutotoolsEngine *engine;
+
+G_MODULE_EXPORT void
+activate (CodeSlayer *codeslayer)
+{
+  GtkAccelGroup *accel_group;
+  accel_group = codeslayer_get_menubar_accel_group (codeslayer);
+  menu = autotools_menu_new (accel_group);
+
+  project_properties = autotools_project_properties_new ();
+  projects_popup = autotools_projects_popup_new ();
+  notebook = autotools_notebook_new ();
+  engine = autotools_engine_new (codeslayer, menu, project_properties, projects_popup, notebook);
+  autotools_engine_load_configurations (engine);
+
+  codeslayer_add_to_menubar (codeslayer, GTK_MENU_ITEM (menu));
+  codeslayer_add_to_projects_popup (codeslayer, GTK_MENU_ITEM (projects_popup));
+  codeslayer_add_to_project_properties (codeslayer, project_properties, "Autotools");
+  codeslayer_add_to_bottom_pane (codeslayer, notebook, "Autotools");
+}
+
+G_MODULE_EXPORT void 
+deactivate (CodeSlayer *codeslayer)
+{
+  codeslayer_remove_from_menubar (codeslayer, GTK_MENU_ITEM (menu));
+  codeslayer_remove_from_projects_popup (codeslayer, GTK_MENU_ITEM (projects_popup));
+  codeslayer_remove_from_project_properties (codeslayer, project_properties);
+  codeslayer_remove_from_bottom_pane (codeslayer, notebook);
+  g_object_unref (engine);
+}

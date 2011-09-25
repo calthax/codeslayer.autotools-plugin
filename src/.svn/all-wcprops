@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/1475/plugins/autotools/src
+END
+autotools-configuration.c
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1010/plugins/autotools/src/autotools-configuration.c
+END
+autotools-menu.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/977/plugins/autotools/src/autotools-menu.h
+END
+autotools-engine.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/977/plugins/autotools/src/autotools-engine.h
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/1389/plugins/autotools/src/Makefile.in
+END
+autotools-configuration.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/977/plugins/autotools/src/autotools-configuration.h
+END
+autotools-notebook.c
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/1262/plugins/autotools/src/autotools-notebook.c
+END
+autotools-notebook-tab.c
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/1010/plugins/autotools/src/autotools-notebook-tab.c
+END
+autotools-notebook.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/977/plugins/autotools/src/autotools-notebook.h
+END
+autotools-notebook-tab.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/977/plugins/autotools/src/autotools-notebook-tab.h
+END
+autotools-notebook-page.c
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/1010/plugins/autotools/src/autotools-notebook-page.c
+END
+autotools-projects-popup.c
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/1010/plugins/autotools/src/autotools-projects-popup.c
+END
+autotools-plugin.c
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/1006/plugins/autotools/src/autotools-plugin.c
+END
+autotools-projects-popup.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/988/plugins/autotools/src/autotools-projects-popup.h
+END
+autotools-notebook-page.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/977/plugins/autotools/src/autotools-notebook-page.h
+END
+autotools-project-properties.c
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/1140/plugins/autotools/src/autotools-project-properties.c
+END
+autotools-output.c
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/1010/plugins/autotools/src/autotools-output.c
+END
+Makefile.am
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/1389/plugins/autotools/src/Makefile.am
+END
+autotools-menu.c
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/1010/plugins/autotools/src/autotools-menu.c
+END
+autotools-engine.c
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/1475/plugins/autotools/src/autotools-engine.c
+END
+autotools-output.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/977/plugins/autotools/src/autotools-output.h
+END
+autotools-project-properties.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/1140/plugins/autotools/src/autotools-project-properties.h
+END
