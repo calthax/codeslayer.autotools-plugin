@@ -112,17 +112,17 @@ add_menu_items (AutotoolsMenu *menu,
 
   make_item = codeslayer_menu_item_new_with_label ("make");
   gtk_widget_add_accelerator (make_item, "activate", 
-                              accel_group, GDK_F9, 0, GTK_ACCEL_VISIBLE);  
+                              accel_group, GDK_KEY_F9, 0, GTK_ACCEL_VISIBLE);  
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), make_item);
 
   make_install_item = codeslayer_menu_item_new_with_label ("make install");
   gtk_widget_add_accelerator (make_install_item, "activate", 
-                              accel_group, GDK_F9, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);  
+                              accel_group, GDK_KEY_F9, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);  
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), make_install_item);
   
   make_clean_item = codeslayer_menu_item_new_with_label ("make clean");
   gtk_widget_add_accelerator (make_clean_item, "activate", 
-                              accel_group, GDK_F9, GDK_CONTROL_MASK | GDK_SHIFT_MASK, 
+                              accel_group, GDK_KEY_F9, GDK_CONTROL_MASK | GDK_SHIFT_MASK, 
                               GTK_ACCEL_VISIBLE);  
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), make_clean_item);
   
