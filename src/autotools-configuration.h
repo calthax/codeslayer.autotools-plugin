@@ -49,9 +49,6 @@ AutotoolsConfiguration*  autotools_configuration_new                       (void
 const gchar*             autotools_configuration_get_project_key           (AutotoolsConfiguration *configuration);
 void                     autotools_configuration_set_project_key           (AutotoolsConfiguration *configuration,
                                                                             const gchar            *project_key);
-const gchar*             autotools_configuration_get_configure_file        (AutotoolsConfiguration *configuration);
-void                     autotools_configuration_set_configure_file        (AutotoolsConfiguration *configuration,
-                                                                            const gchar            *configure_file);
 const gchar*             autotools_configuration_get_configure_parameters  (AutotoolsConfiguration *configuration);
 void                     autotools_configuration_set_configure_parameters  (AutotoolsConfiguration *configuration,
                                                                             const gchar            *configure_parameters);

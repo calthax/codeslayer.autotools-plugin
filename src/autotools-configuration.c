@@ -38,7 +38,6 @@ typedef struct _AutotoolsConfigurationPrivate AutotoolsConfigurationPrivate;
 struct _AutotoolsConfigurationPrivate
 {
   gchar *project_key;
-  gchar *configure_file;
   gchar *configure_parameters;
   gchar *build_folder_path;
 };
@@ -47,7 +46,6 @@ enum
 {
   PROP_0,
   PROP_PROJECT_KEY,
-  PROP_CONFIGURE_FILE,
   PROP_CONFIGURE_PARAMETERS,
   PROP_BUILD_FOLDER_PATH
 };
@@ -74,14 +72,6 @@ autotools_configuration_class_init (AutotoolsConfigurationClass *klass)
                                                         G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class, 
-                                   PROP_CONFIGURE_FILE,
-                                   g_param_spec_string ("configure_file",
-                                                        "Configure File",
-                                                        "Configure File Object",
-                                                        "",
-                                                        G_PARAM_READWRITE));
-
-  g_object_class_install_property (gobject_class, 
                                    PROP_CONFIGURE_PARAMETERS,
                                    g_param_spec_string ("configure_parameters",
                                                         "Configure Parameters",
@@ -104,7 +94,6 @@ autotools_configuration_init (AutotoolsConfiguration *configuration)
   AutotoolsConfigurationPrivate *priv;
   priv = AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration);
   priv->project_key = NULL;
-  priv->configure_file = NULL;
   priv->configure_parameters = NULL;
   priv->build_folder_path = NULL;
 }
@@ -118,11 +107,6 @@ autotools_configuration_finalize (AutotoolsConfiguration *configuration)
     {
       g_free (priv->project_key);
       priv->project_key = NULL;
-    }
-  if (priv->configure_file)
-    {
-      g_free (priv->configure_file);
-      priv->configure_file = NULL;
     }
   if (priv->configure_parameters)
     {
@@ -154,9 +138,6 @@ autotools_configuration_get_property (GObject    *object,
     case PROP_PROJECT_KEY:
       g_value_set_string (value, priv->project_key);
       break;
-    case PROP_CONFIGURE_FILE:
-      g_value_set_string (value, priv->configure_file);
-      break;
     case PROP_CONFIGURE_PARAMETERS:
       g_value_set_string (value, priv->configure_parameters);
       break;
@@ -182,9 +163,6 @@ autotools_configuration_set_property (GObject      *object,
     {
     case PROP_PROJECT_KEY:
       autotools_configuration_set_project_key (configuration, g_value_get_string (value));
-      break;
-    case PROP_CONFIGURE_FILE:
-      autotools_configuration_set_configure_file (configuration, g_value_get_string (value));
       break;
     case PROP_CONFIGURE_PARAMETERS:
       autotools_configuration_set_configure_parameters (configuration, g_value_get_string (value));
@@ -225,26 +203,6 @@ autotools_configuration_set_project_key (AutotoolsConfiguration *configuration,
 }
 
 const gchar*
-autotools_configuration_get_configure_file (AutotoolsConfiguration *configuration)
-{
-  return AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration)->configure_file;
-}
-
-void
-autotools_configuration_set_configure_file (AutotoolsConfiguration *configuration,
-                                            const gchar            *configure_file)
-{
-  AutotoolsConfigurationPrivate *priv;
-  priv = AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration);
-  if (priv->configure_file)
-    {
-      g_free (priv->configure_file);
-      priv->configure_file = NULL;
-    }
-  priv->configure_file = g_strdup (configure_file);
-}
-
-const gchar*
 autotools_configuration_get_configure_parameters (AutotoolsConfiguration *configuration)
 {
   return AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration)->configure_parameters;
@@ -272,7 +230,7 @@ autotools_configuration_get_build_folder_path (AutotoolsConfiguration *configura
 
 void
 autotools_configuration_set_build_folder_path (AutotoolsConfiguration *configuration,
-                                             const gchar            *build_folder_path)
+                                               const gchar            *build_folder_path)
 {
   AutotoolsConfigurationPrivate *priv;
   priv = AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration);
