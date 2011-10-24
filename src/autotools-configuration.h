@@ -55,9 +55,9 @@ void                     autotools_configuration_set_configure_file        (Auto
 const gchar*             autotools_configuration_get_configure_parameters  (AutotoolsConfiguration *configuration);
 void                     autotools_configuration_set_configure_parameters  (AutotoolsConfiguration *configuration,
                                                                             const gchar            *configure_parameters);
-const gchar*             autotools_configuration_get_build_directory       (AutotoolsConfiguration *configuration);
-void                     autotools_configuration_set_build_directory       (AutotoolsConfiguration *configuration,
-                                                                            const gchar            *build_directory);
+const gchar*             autotools_configuration_get_build_folder_path     (AutotoolsConfiguration *configuration);
+void                     autotools_configuration_set_build_folder_path     (AutotoolsConfiguration *configuration,
+                                                                            const gchar            *build_folder_path);
 
 G_END_DECLS
 

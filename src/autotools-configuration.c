@@ -40,7 +40,7 @@ struct _AutotoolsConfigurationPrivate
   gchar *project_key;
   gchar *configure_file;
   gchar *configure_parameters;
-  gchar *build_directory;
+  gchar *build_folder_path;
 };
 
 enum
@@ -49,7 +49,7 @@ enum
   PROP_PROJECT_KEY,
   PROP_CONFIGURE_FILE,
   PROP_CONFIGURE_PARAMETERS,
-  PROP_BUILD_DIRECTORY
+  PROP_BUILD_FOLDER_PATH
 };
 
 G_DEFINE_TYPE (AutotoolsConfiguration, autotools_configuration, G_TYPE_OBJECT)
@@ -85,15 +85,15 @@ autotools_configuration_class_init (AutotoolsConfigurationClass *klass)
                                    PROP_CONFIGURE_PARAMETERS,
                                    g_param_spec_string ("configure_parameters",
                                                         "Configure Parameters",
-                                                        "Configure Parameters Object",
+                                                        "Configure Parameters",
                                                         "",
                                                         G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class, 
-                                   PROP_BUILD_DIRECTORY,
-                                   g_param_spec_string ("build_directory",
-                                                        "Build Directory",
-                                                        "Build Directory Object",
+                                   PROP_BUILD_FOLDER_PATH,
+                                   g_param_spec_string ("build_folder_path",
+                                                        "Build Folder Path",
+                                                        "Build Folder Path",
                                                         "",
                                                         G_PARAM_READWRITE));
 }
@@ -106,7 +106,7 @@ autotools_configuration_init (AutotoolsConfiguration *configuration)
   priv->project_key = NULL;
   priv->configure_file = NULL;
   priv->configure_parameters = NULL;
-  priv->build_directory = NULL;
+  priv->build_folder_path = NULL;
 }
 
 static void
@@ -129,10 +129,10 @@ autotools_configuration_finalize (AutotoolsConfiguration *configuration)
       g_free (priv->configure_parameters);
       priv->configure_parameters = NULL;
     }
-  if (priv->build_directory)
+  if (priv->build_folder_path)
     {
-      g_free (priv->build_directory);
-      priv->build_directory = NULL;
+      g_free (priv->build_folder_path);
+      priv->build_folder_path = NULL;
     }
   G_OBJECT_CLASS (autotools_configuration_parent_class)->finalize (G_OBJECT (configuration));
 }
@@ -160,8 +160,8 @@ autotools_configuration_get_property (GObject    *object,
     case PROP_CONFIGURE_PARAMETERS:
       g_value_set_string (value, priv->configure_parameters);
       break;
-    case PROP_BUILD_DIRECTORY:
-      g_value_set_string (value, priv->build_directory);
+    case PROP_BUILD_FOLDER_PATH:
+      g_value_set_string (value, priv->build_folder_path);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -189,8 +189,8 @@ autotools_configuration_set_property (GObject      *object,
     case PROP_CONFIGURE_PARAMETERS:
       autotools_configuration_set_configure_parameters (configuration, g_value_get_string (value));
       break;
-    case PROP_BUILD_DIRECTORY:
-      autotools_configuration_set_build_directory (configuration, g_value_get_string (value));
+    case PROP_BUILD_FOLDER_PATH:
+      autotools_configuration_set_build_folder_path (configuration, g_value_get_string (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -265,21 +265,21 @@ autotools_configuration_set_configure_parameters (AutotoolsConfiguration *config
 }
 
 const gchar*
-autotools_configuration_get_build_directory (AutotoolsConfiguration *configuration)
+autotools_configuration_get_build_folder_path (AutotoolsConfiguration *configuration)
 {
-  return AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration)->build_directory;
+  return AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration)->build_folder_path;
 }
 
 void
-autotools_configuration_set_build_directory (AutotoolsConfiguration *configuration,
-                                             const gchar            *build_directory)
+autotools_configuration_set_build_folder_path (AutotoolsConfiguration *configuration,
+                                             const gchar            *build_folder_path)
 {
   AutotoolsConfigurationPrivate *priv;
   priv = AUTOTOOLS_CONFIGURATION_GET_PRIVATE (configuration);
-  if (priv->build_directory)
+  if (priv->build_folder_path)
     {
-      g_free (priv->build_directory);
-      priv->build_directory = NULL;
+      g_free (priv->build_folder_path);
+      priv->build_folder_path = NULL;
     }
-  priv->build_directory = g_strdup (build_directory);
+  priv->build_folder_path = g_strdup (build_folder_path);
 }

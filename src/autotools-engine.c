@@ -199,7 +199,7 @@ autotools_engine_load_configurations (AutotoolsEngine *engine)
                                                   "project_key", G_TYPE_STRING,
                                                   "configure_file", G_TYPE_STRING, 
                                                   "configure_parameters", G_TYPE_STRING, 
-                                                  "build_directory", G_TYPE_STRING, 
+                                                  "build_folder_path", G_TYPE_STRING, 
                                                   NULL);
   priv->configurations = configurations;
   g_free (file_path);
@@ -287,15 +287,15 @@ save_configuration_action (AutotoolsEngine        *engine,
       AutotoolsConfiguration *configuration = tmp->data;
       const gchar *configure_file;
       const gchar *configure_parameters;
-      const gchar *build_directory;
+      const gchar *build_folder_path;
 
       configure_file = autotools_configuration_get_configure_file (configuration);
       configure_parameters = autotools_configuration_get_configure_parameters (configuration);
-      build_directory = autotools_configuration_get_build_directory (configuration);
+      build_folder_path = autotools_configuration_get_build_folder_path (configuration);
       
       if (g_utf8_strlen (configure_file, -1) == 0 &&
           g_utf8_strlen (configure_parameters, -1) == 0 &&
-          g_utf8_strlen (build_directory, -1) == 0)
+          g_utf8_strlen (build_folder_path, -1) == 0)
         priv->configurations = g_list_remove (priv->configurations, configuration);
       tmp = g_list_next (tmp);
     }
@@ -309,7 +309,7 @@ save_configuration_action (AutotoolsEngine        *engine,
                                   "project_key", G_TYPE_STRING,
                                   "configure_file", G_TYPE_STRING, 
                                   "configure_parameters", G_TYPE_STRING, 
-                                  "build_directory", G_TYPE_STRING, 
+                                  "build_folder_path", G_TYPE_STRING, 
                                   NULL);  
   g_free (file_path);
 }
@@ -504,13 +504,13 @@ static void
 execute_make (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
-  const gchar *build_directory;             
+  const gchar *build_folder_path;             
   gchar *command;
   
   configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  build_folder_path = autotools_configuration_get_build_folder_path (configuration);
   
-  command = g_strconcat ("cd ", build_directory, ";make 2>&1", NULL);
+  command = g_strconcat ("cd ", build_folder_path, ";make 2>&1", NULL);
   run_command (output, command);
   g_free (command);
 }
@@ -519,13 +519,13 @@ static void
 execute_make_install (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
-  const gchar *build_directory;             
+  const gchar *build_folder_path;             
   gchar *command;
   
   configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  build_folder_path = autotools_configuration_get_build_folder_path (configuration);
   
-  command = g_strconcat ("cd ", build_directory, ";make install 2>&1", NULL);
+  command = g_strconcat ("cd ", build_folder_path, ";make install 2>&1", NULL);
   run_command (output, command);
   g_free (command);    
 }
@@ -534,13 +534,13 @@ static void
 execute_make_clean (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
-  const gchar *build_directory;             
+  const gchar *build_folder_path;             
   gchar *command;
   
   configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  build_folder_path = autotools_configuration_get_build_folder_path (configuration);
   
-  command = g_strconcat ("cd ", build_directory, ";make clean 2>&1", NULL);
+  command = g_strconcat ("cd ", build_folder_path, ";make clean 2>&1", NULL);
   run_command (output, command);
   g_free (command);
 }
@@ -549,19 +549,19 @@ static void
 execute_configure (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
-  const gchar *build_directory;
+  const gchar *build_folder_path;
   const gchar *configure_file;             
   const gchar *configure_parameters;             
   gchar *configure_file_path;             
   gchar *command;
   
   configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  build_folder_path = autotools_configuration_get_build_folder_path (configuration);
   configure_file = autotools_configuration_get_configure_file (configuration);
   configure_file_path = g_path_get_dirname (configure_file);
   configure_parameters = autotools_configuration_get_configure_parameters (configuration);
   
-  command = g_strconcat ("cd ", build_directory, ";", configure_file_path, 
+  command = g_strconcat ("cd ", build_folder_path, ";", configure_file_path, 
                          G_DIR_SEPARATOR_S, "configure ", configure_parameters, " 2>&1", NULL);
   g_free (configure_file_path);    
 
