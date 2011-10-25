@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <codeslayer/codeslayer-utils.h>
 #include "autotools-project-properties.h"
 
 static void autotools_project_properties_class_init  (AutotoolsProjectPropertiesClass *klass);
@@ -28,8 +29,6 @@ static void build_folder_icon_action                 (GtkEntry                  
                                                       GtkEntryIconPosition              icon_pos,
                                                       GdkEvent                         *event,
                                                       AutotoolsProjectProperties       *project_properties);
-static gboolean entry_has_text                       (GtkWidget                        *entry);
-
 
 #define AUTOTOOLS_PROJECT_PROPERTIES_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_PROJECT_PROPERTIES_TYPE, AutotoolsProjectPropertiesPrivate))
@@ -233,21 +232,17 @@ autotools_project_properties_saved (AutotoolsProjectProperties *project_properti
   g_strstrip (configure_parameters);
   g_strstrip (build_folder_path);
   
-  if (configuration)
+  if (configuration != NULL)
     {
-      if (g_strcmp0 (configure_parameters, autotools_configuration_get_configure_parameters (configuration)) == 0 &&
-          g_strcmp0 (build_folder_path, autotools_configuration_get_build_folder_path (configuration)) == 0)
+      if (g_strcmp0 (configure_parameters, autotools_configuration_get_configure_parameters (configuration)) != 0 ||
+          g_strcmp0 (build_folder_path, autotools_configuration_get_build_folder_path (configuration)) != 0)
         {
-          g_free (configure_parameters);
-          g_free (build_folder_path);
-          return;
+          autotools_configuration_set_configure_parameters (configuration, configure_parameters);
+          autotools_configuration_set_build_folder_path (configuration, build_folder_path);
+          g_signal_emit_by_name((gpointer)project_properties, "save-configuration", NULL);
         }
-
-      autotools_configuration_set_configure_parameters (configuration, configure_parameters);
-      autotools_configuration_set_build_folder_path (configuration, build_folder_path);
-      g_signal_emit_by_name((gpointer)project_properties, "save-configuration", NULL);
     }
-  else if (entry_has_text (priv->build_folder_entry))
+  else
     {
       AutotoolsConfiguration *configuration;
       const gchar *project_key;
@@ -261,10 +256,4 @@ autotools_project_properties_saved (AutotoolsProjectProperties *project_properti
     
   g_free (configure_parameters);
   g_free (build_folder_path);
-}
-
-static gboolean
-entry_has_text (GtkWidget *entry)
-{
-  return gtk_entry_buffer_get_length (gtk_entry_get_buffer (GTK_ENTRY (entry))) > 0;
 }

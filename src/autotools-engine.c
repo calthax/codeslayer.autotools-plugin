@@ -72,6 +72,8 @@ static void save_configuration_action                            (AutotoolsEngin
 static CodeSlayerProject* get_selections_project                 (GList                  *selections);
 
 static gchar* get_configuration_file_path                        (AutotoolsEngine        *engine);
+static gboolean has_proper_configuration                         (CodeSlayerProject      *project, 
+                                                                  AutotoolsConfiguration *configuration);
                                                    
 #define AUTOTOOLS_ENGINE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_ENGINE_TYPE, AutotoolsEnginePrivate))
@@ -612,8 +614,8 @@ get_output_by_active_editor (AutotoolsEngine *engine)
       GtkWidget *dialog;
       dialog =  gtk_message_dialog_new (NULL, 
                                         GTK_DIALOG_MODAL,
-                                        GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-                                        "There are no open editors. Not able to determine what project to execute command against.");
+                                        GTK_MESSAGE_WARNING, GTK_BUTTONS_OK,
+                                        "Autotools: there are no open editors. Not able to determine what project to execute command against.");
       gtk_dialog_run (GTK_DIALOG (dialog));
       gtk_widget_destroy (dialog);
       return NULL;
@@ -630,32 +632,18 @@ get_output_by_project (AutotoolsEngine   *engine,
   GtkWidget  *notebook;
   const gchar *project_key;
   const gchar *project_name;
-  AutotoolsConfiguration *configuration;
+  AutotoolsConfiguration *configuration = NULL;
   GtkWidget *output;
   
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
   notebook = priv->notebook;
   
-  project_key = codeslayer_project_get_key (project);
   project_name = codeslayer_project_get_name (project);
+  project_key = codeslayer_project_get_key (project);
   configuration = get_configuration_by_project_key (engine, project_key);
-  
-  if (configuration == NULL)
-    {
-      GtkWidget *dialog;
-      gchar *msg;
-      msg = g_strconcat ("There is no configuration for project ", 
-                         project_name, ".", NULL);      
-      dialog =  gtk_message_dialog_new (NULL, 
-                                        GTK_DIALOG_MODAL,
-                                        GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-                                        msg, 
-                                        NULL);
-      gtk_dialog_run (GTK_DIALOG (dialog));
-      gtk_widget_destroy (dialog);
-      g_free (msg);
-      return NULL;
-    }
+   
+  if (!has_proper_configuration (project, configuration))
+    return NULL;
   
   output = autotools_notebook_get_output_by_configuration (AUTOTOOLS_NOTEBOOK (notebook), 
                                                            configuration);
@@ -666,6 +654,55 @@ get_output_by_project (AutotoolsEngine   *engine,
     }                                                           
 
   return AUTOTOOLS_OUTPUT (output);
+}
+
+static gboolean 
+has_proper_configuration (CodeSlayerProject      *project, 
+                          AutotoolsConfiguration *configuration)
+{
+  const gchar *build_file_path;
+  const gchar *build_folder_path;
+
+  build_file_path = codeslayer_project_get_build_file_path (project); 
+  if (!codeslayer_utils_has_text (build_file_path) || configuration == NULL)
+    {
+      GtkWidget *dialog;
+      const gchar *project_name;
+      gchar *msg;
+      project_name = codeslayer_project_get_name (project);
+      msg = g_strconcat ("Autotools: you need to specify the build file (configure.ac) for project ", 
+                         project_name, ".", NULL);      
+      dialog =  gtk_message_dialog_new (NULL, 
+                                        GTK_DIALOG_MODAL,
+                                        GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                                        msg, 
+                                        NULL);
+      gtk_dialog_run (GTK_DIALOG (dialog));
+      gtk_widget_destroy (dialog);
+      g_free (msg);
+      return FALSE;
+    }
+    
+  build_folder_path = autotools_configuration_get_build_folder_path (configuration);
+  if (!codeslayer_utils_has_text (build_folder_path))
+    {
+      GtkWidget *dialog;
+      const gchar *project_name;
+      gchar *msg;
+      project_name = codeslayer_project_get_name (project);
+      msg = g_strconcat ("Autotools: you need to specify the build folder for project ", 
+                         project_name, ".", NULL);      
+      dialog =  gtk_message_dialog_new (NULL, 
+                                        GTK_DIALOG_MODAL,
+                                        GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
+                                        msg);
+      gtk_dialog_run (GTK_DIALOG (dialog));
+      gtk_widget_destroy (dialog);
+      g_free (msg);
+      return FALSE;
+    }
+    
+  return TRUE;    
 }
 
 static void
