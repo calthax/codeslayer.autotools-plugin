@@ -20,7 +20,6 @@
 #define	__AUTOTOOLS_OUTPUT_H__
 
 #include <gtk/gtk.h>
-#include <codeslayer/codeslayer.h>
 #include "autotools-configuration.h"
 
 G_BEGIN_DECLS
@@ -46,11 +45,9 @@ struct _AutotoolsOutputClass
 
 GType autotools_output_get_type (void) G_GNUC_CONST;
 
-GtkWidget*               autotools_output_new                (AutotoolsConfiguration *configuration, 
-                                                              CodeSlayerProject      *project);
+GtkWidget*  autotools_output_new  (AutotoolsConfiguration *configuration);
 
-AutotoolsConfiguration*  autotools_output_get_configuration  (AutotoolsOutput        *output);
-CodeSlayerProject*       autotools_output_get_project        (AutotoolsOutput        *output);
+AutotoolsConfiguration* autotools_output_get_configuration (AutotoolsOutput *output);
 
 G_END_DECLS
 

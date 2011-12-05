@@ -30,7 +30,6 @@ typedef struct _AutotoolsOutputPrivate AutotoolsOutputPrivate;
 struct _AutotoolsOutputPrivate
 {
   AutotoolsConfiguration *configuration;
-  CodeSlayerProject      *project;
 };
 
 G_DEFINE_TYPE (AutotoolsOutput, autotools_output, GTK_TYPE_TEXT_VIEW)
@@ -56,8 +55,7 @@ autotools_output_finalize (AutotoolsOutput *output)
 }
 
 GtkWidget*
-autotools_output_new (AutotoolsConfiguration *configuration,
-                      CodeSlayerProject      *project)
+autotools_output_new (AutotoolsConfiguration *configuration)
 {
   GtkWidget *output;
   AutotoolsOutputPrivate *priv;
@@ -65,7 +63,6 @@ autotools_output_new (AutotoolsConfiguration *configuration,
   output = g_object_new (autotools_output_get_type (), NULL);
   priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
   priv->configuration = configuration;
-  priv->project = project;
   
   return output;
 }
@@ -76,12 +73,4 @@ autotools_output_get_configuration (AutotoolsOutput *output)
   AutotoolsOutputPrivate *priv;
   priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
   return priv->configuration;
-}
-
-CodeSlayerProject* 
-autotools_output_get_project (AutotoolsOutput *output)
-{
-  AutotoolsOutputPrivate *priv;
-  priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
-  return priv->project;
 }

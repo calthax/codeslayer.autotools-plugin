@@ -28,12 +28,23 @@ static void autotools_notebook_finalize    (AutotoolsNotebook      *notebook);
 static void close_action                   (AutotoolsNotebookTab   *notebook_tab,
                                             AutotoolsNotebook      *notebook);
 
+#define AUTOTOOLS_NOTEBOOK_GET_PRIVATE(obj) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_NOTEBOOK_TYPE, AutotoolsNotebookPrivate))
+
+typedef struct _AutotoolsNotebookPrivate AutotoolsNotebookPrivate;
+
+struct _AutotoolsNotebookPrivate
+{
+  gchar *foo;
+};
+
 G_DEFINE_TYPE (AutotoolsNotebook, autotools_notebook, GTK_TYPE_NOTEBOOK)
 
 static void
 autotools_notebook_class_init (AutotoolsNotebookClass *klass)
 {
   G_OBJECT_CLASS (klass)->finalize = (GObjectFinalizeFunc) autotools_notebook_finalize;
+  g_type_class_add_private (klass, sizeof (AutotoolsNotebookPrivate));
 }
 
 static void
