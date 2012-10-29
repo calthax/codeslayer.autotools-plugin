@@ -504,15 +504,23 @@ static void
 execute_make (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
+  CodeSlayer *codeslayer;             
   const gchar *build_directory;             
   gchar *command;
+  gint process_id;
   
+  codeslayer = autotools_output_get_codeslayer (output);
+  
+  process_id = codeslayer_add_to_processes (codeslayer, _("Make..."), NULL, NULL);
+
   configuration = autotools_output_get_configuration (output);
   build_directory = autotools_configuration_get_build_directory (configuration);
   
   command = g_strconcat ("cd ", build_directory, ";make 2>&1", NULL);
   run_command (output, command);
   g_free (command);
+
+  codeslayer_remove_from_processes (codeslayer, process_id);
 }
 
 static void
@@ -664,7 +672,7 @@ get_output_by_project (AutotoolsEngine   *engine,
                                                            configuration);
   if (output == NULL)
     {
-      output = autotools_output_new (configuration);
+      output = autotools_output_new (configuration, priv->codeslayer);
       autotools_notebook_add_output (AUTOTOOLS_NOTEBOOK (priv->notebook), output, project_name);
     }                                                           
 
