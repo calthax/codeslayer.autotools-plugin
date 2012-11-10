@@ -23,6 +23,12 @@
 #include "autotools-notebook.h"
 #include "autotools-output.h"
 
+typedef struct
+{
+  AutotoolsOutput *output;
+  gchar           *text;
+} OutputContext;
+
 static void autotools_engine_class_init                          (AutotoolsEngineClass   *klass);
 static void autotools_engine_init                                (AutotoolsEngine        *engine);
 static void autotools_engine_finalize                            (AutotoolsEngine        *engine);
@@ -73,6 +79,9 @@ static void save_configuration_action                            (AutotoolsEngin
 static CodeSlayerProject* get_selections_project                 (GList                  *selections);
 
 static gchar* get_configuration_file_path                        (AutotoolsEngine        *engine);
+static gboolean clear_text                                       (AutotoolsOutput        *output);
+static gboolean append_text                                      (OutputContext          *context);
+static void     destroy_text                                     (OutputContext          *context);
                                                    
 #define AUTOTOOLS_ENGINE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_ENGINE_TYPE, AutotoolsEnginePrivate))
@@ -344,7 +353,7 @@ make_action (AutotoolsEngine *engine)
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_make, output, FALSE, NULL);    
+      g_thread_new ("make", (GThreadFunc) execute_make, output);                                                
     }
 }
 
@@ -365,7 +374,7 @@ project_make_action (AutotoolsEngine *engine,
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_make, output, FALSE, NULL);    
+      g_thread_new ("project-make", (GThreadFunc) execute_make, output);                                                
     }
 }
 
@@ -383,7 +392,7 @@ make_install_action (AutotoolsEngine *engine)
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_make_install, output, FALSE, NULL);
+      g_thread_new ("make-install", (GThreadFunc) execute_make_install, output);                                                
     }
 }   
 
@@ -404,7 +413,7 @@ project_make_install_action (AutotoolsEngine *engine,
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_make_install, output, FALSE, NULL);
+      g_thread_new ("project-make-install", (GThreadFunc) execute_make_install, output);                                                
     }
 }   
 
@@ -422,7 +431,7 @@ make_clean_action (AutotoolsEngine *engine)
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_make_clean, output, FALSE, NULL);
+      g_thread_new ("make-clean", (GThreadFunc) execute_make_clean, output);                                                
     }
 }
 
@@ -443,7 +452,7 @@ project_make_clean_action (AutotoolsEngine *engine,
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_make_clean, output, FALSE, NULL);
+      g_thread_new ("project-make-clean", (GThreadFunc) execute_make_clean, output);                                                
     }
 }
 
@@ -464,7 +473,7 @@ project_configure_action (AutotoolsEngine *engine,
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_configure, output, FALSE, NULL);
+      g_thread_new ("project-configure", (GThreadFunc) execute_configure, output);                                                
     }
 }
 
@@ -485,7 +494,7 @@ project_autoreconf_action (AutotoolsEngine *engine,
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
       autotools_notebook_select_page_by_output (AUTOTOOLS_NOTEBOOK (priv->notebook), 
                                                 GTK_WIDGET (output));
-      g_thread_create ((GThreadFunc) execute_autoreconf, output, FALSE, NULL);
+      g_thread_new ("project-autoreconf", (GThreadFunc) execute_autoreconf, output);                                                
     }
 }
 
@@ -581,12 +590,10 @@ static void
 execute_autoreconf (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
-  GtkTextBuffer *buffer;
-  GtkTextIter iter;
-  GtkTextMark *text_mark;
   const gchar *configure_file;             
   gchar *configure_file_path;             
   gchar *command;
+  OutputContext *context;
   
   configuration = autotools_output_get_configuration (output);
   configure_file = autotools_configuration_get_configure_file (configuration);
@@ -598,13 +605,10 @@ execute_autoreconf (AutotoolsOutput *output)
   run_command (output, command);
   g_free (command);
   
-  gdk_threads_enter ();
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (output));
-  gtk_text_buffer_get_end_iter (buffer, &iter);
-  gtk_text_buffer_insert (buffer, &iter, "autoreconf finished\n", -1);
-  text_mark = gtk_text_buffer_create_mark (buffer, NULL, &iter, TRUE);
-  gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (output), text_mark, 0.0, FALSE, 0, 0);
-  gdk_threads_leave ();  
+  context = g_malloc (sizeof (OutputContext));
+  context->output = output;
+  context->text = g_strdup ("autoreconf finished\n");
+  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) append_text, context, (GDestroyNotify)destroy_text);
 }
 
 static AutotoolsOutput*
@@ -683,29 +687,52 @@ static void
 run_command (AutotoolsOutput *output,
              gchar           *command)
 {
-  GtkTextBuffer *buffer;
-  GtkTextIter iter;
-  GtkTextMark *text_mark;
   char out[BUFSIZ];
   FILE *file;
   
-  gdk_threads_enter ();
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (output));
-  gtk_text_buffer_set_text (buffer, "", -1);
-  gdk_threads_leave ();
+  g_idle_add ((GSourceFunc) clear_text, output);
   
   file = popen (command, "r");
   if (file != NULL)
     {
       while (fgets (out, BUFSIZ, file))
         {
-          gdk_threads_enter ();
-          gtk_text_buffer_get_end_iter (buffer, &iter);
-          gtk_text_buffer_insert (buffer, &iter, out, -1);
-          text_mark = gtk_text_buffer_create_mark (buffer, NULL, &iter, TRUE);
-          gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (output), text_mark, 0.0, FALSE, 0, 0);
-          gdk_threads_leave ();
+          OutputContext *context;
+          context = g_malloc (sizeof (OutputContext));
+          context->output = output;
+          context->text = g_strdup (out);
+          g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) append_text, context, (GDestroyNotify)destroy_text);
         }
       pclose (file);
     }
+}
+
+static gboolean 
+clear_text (AutotoolsOutput *output)
+{
+  GtkTextBuffer *buffer;
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (output));
+  gtk_text_buffer_set_text (buffer, "", -1);
+  return FALSE;
+}
+
+static gboolean 
+append_text (OutputContext *context)
+{
+  GtkTextBuffer *buffer;
+  GtkTextIter iter;
+  GtkTextMark *text_mark;
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (context->output));
+  gtk_text_buffer_get_end_iter (buffer, &iter);
+  gtk_text_buffer_insert (buffer, &iter, context->text, -1);
+  text_mark = gtk_text_buffer_create_mark (buffer, NULL, &iter, TRUE);
+  gtk_text_view_scroll_to_mark (GTK_TEXT_VIEW (context->output), text_mark, 0.0, FALSE, 0, 0);
+  return FALSE;
+}
+
+static void 
+destroy_text (OutputContext *context)
+{
+  g_free (context->text);
+  g_free (context);
 }
