@@ -98,7 +98,7 @@ static void
 add_form (AutotoolsProjectProperties *project_properties)
 {
   AutotoolsProjectPropertiesPrivate *priv;
-  GtkWidget *table;
+  GtkWidget *grid;
 
   GtkWidget *configure_file_label;
   GtkWidget *configure_file_entry;
@@ -111,46 +111,47 @@ add_form (AutotoolsProjectProperties *project_properties)
 
   priv = AUTOTOOLS_PROJECT_PROPERTIES_GET_PRIVATE (project_properties);
 
-  table = gtk_table_new (4, 2, FALSE);
+  grid = gtk_grid_new ();
+  gtk_grid_set_row_spacing (GTK_GRID (grid), 2);
 
   configure_file_label = gtk_label_new ("Configure File:");
   gtk_misc_set_alignment (GTK_MISC (configure_file_label), 1, .5);
-  gtk_table_attach (GTK_TABLE (table), configure_file_label, 
-                    0, 1, 0, 1, GTK_FILL, GTK_SHRINK, 4, 0);
+  gtk_misc_set_padding (GTK_MISC (configure_file_label), 4, 0);
+  gtk_grid_attach (GTK_GRID (grid), configure_file_label, 0, 0, 1, 1);
                     
   configure_file_entry = gtk_entry_new ();
   priv->configure_file_entry = configure_file_entry;
   gtk_entry_set_width_chars (GTK_ENTRY (configure_file_entry), 50);
   gtk_entry_set_icon_from_stock (GTK_ENTRY (configure_file_entry), 
                                  GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_FILE);
-  gtk_table_attach (GTK_TABLE (table), configure_file_entry, 1, 2, 0, 1,
-                    GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL, 4, 1);
+  gtk_grid_attach_next_to (GTK_GRID (grid), configure_file_entry, configure_file_label, 
+                           GTK_POS_RIGHT, 1, 1);
                       
   configure_parameters_label = gtk_label_new ("Configure Parameters:");
   gtk_misc_set_alignment (GTK_MISC (configure_parameters_label), 1, .5);
-  gtk_table_attach (GTK_TABLE (table), configure_parameters_label, 
-                    0, 1, 1, 2, GTK_FILL, GTK_SHRINK, 4, 0);
+  gtk_misc_set_padding (GTK_MISC (configure_parameters_label), 4, 0);
+  gtk_grid_attach (GTK_GRID (grid), configure_parameters_label, 0, 1, 1, 1);
   
   configure_parameters_entry = gtk_entry_new ();
   priv->configure_parameters_entry = configure_parameters_entry;
   gtk_entry_set_width_chars (GTK_ENTRY (configure_parameters_entry), 50);
-  gtk_table_attach (GTK_TABLE (table), configure_parameters_entry, 1, 2, 1, 2,
-                    GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL, 4, 1);
+  gtk_grid_attach_next_to (GTK_GRID (grid), configure_parameters_entry, configure_parameters_label, 
+                           GTK_POS_RIGHT, 1, 1);
                       
   build_directory_label = gtk_label_new ("Build Directory:");
   gtk_misc_set_alignment (GTK_MISC (build_directory_label), 1, .5);
-  gtk_table_attach (GTK_TABLE (table), build_directory_label, 
-                    0, 1, 2, 3, GTK_FILL, GTK_SHRINK, 4, 0);
+  gtk_misc_set_padding (GTK_MISC (build_directory_label), 4, 0);
+  gtk_grid_attach (GTK_GRID (grid), build_directory_label, 0, 2, 1, 1);
   
   build_directory_entry = gtk_entry_new ();
   priv->build_directory_entry = build_directory_entry;
   gtk_entry_set_width_chars (GTK_ENTRY (build_directory_entry), 50);
   gtk_entry_set_icon_from_stock (GTK_ENTRY (build_directory_entry), 
                                  GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_DIRECTORY);
-  gtk_table_attach (GTK_TABLE (table), build_directory_entry, 1, 2, 2, 3,
-                    GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL, 4, 1);
+  gtk_grid_attach_next_to (GTK_GRID (grid), build_directory_entry, build_directory_label, 
+                           GTK_POS_RIGHT, 1, 1);
                       
-  gtk_box_pack_start (GTK_BOX (project_properties), table, FALSE, FALSE, 2);
+  gtk_box_pack_start (GTK_BOX (project_properties), grid, FALSE, FALSE, 3);
   
 
   g_signal_connect (G_OBJECT (configure_file_entry), "icon-press",
