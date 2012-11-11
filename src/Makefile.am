@@ -1,8 +1,3 @@
-INCLUDES = \
-    $(AUTOTOOLSCODESLAYERPLUGIN_CFLAGS) \
-    -I$(top_srcdir) \
-    -I$(srcdir)
-
 lib_LTLIBRARIES = libautotoolscodeslayerplugin.la
 
 libautotoolscodeslayerplugin_la_SOURCES = \
@@ -26,4 +21,4 @@ libautotoolscodeslayerplugin_la_SOURCES = \
     autotools-menu.h \
     autotools-menu.c
 
-libautotoolscodeslayerplugin_la_CPPFLAGS = -I$(top_srcdir)
+libautotoolscodeslayerplugin_la_CPPFLAGS = $(AUTOTOOLSCODESLAYERPLUGIN_CFLAGS) -I$(top_srcdir) -I$(srcdir)
