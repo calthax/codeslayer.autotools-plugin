@@ -82,6 +82,7 @@ static gchar* get_configuration_file_path                        (AutotoolsEngin
 static gboolean clear_text                                       (AutotoolsOutput        *output);
 static gboolean append_text                                      (OutputContext          *context);
 static void     destroy_text                                     (OutputContext          *context);
+static gboolean create_links                                     (AutotoolsOutput        *output);
                                                    
 #define AUTOTOOLS_ENGINE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_ENGINE_TYPE, AutotoolsEnginePrivate))
@@ -705,6 +706,8 @@ run_command (AutotoolsOutput *output,
         }
       pclose (file);
     }
+    
+  g_idle_add ((GSourceFunc) create_links, output);    
 }
 
 static gboolean 
@@ -735,4 +738,11 @@ destroy_text (OutputContext *context)
 {
   g_free (context->text);
   g_free (context);
+}
+
+static gboolean 
+create_links (AutotoolsOutput *output)
+{
+  autotools_output_create_links (output);
+  return FALSE;
 }

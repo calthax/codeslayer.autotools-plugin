@@ -46,11 +46,12 @@ struct _AutotoolsOutputClass
 
 GType autotools_output_get_type (void) G_GNUC_CONST;
 
-GtkWidget*  autotools_output_new  (AutotoolsConfiguration *configuration, 
-                                   CodeSlayer             *codeslayer);
+GtkWidget*               autotools_output_new               (AutotoolsConfiguration *configuration, 
+                                                             CodeSlayer             *codeslayer);
 
-AutotoolsConfiguration* autotools_output_get_configuration (AutotoolsOutput *output);
-CodeSlayer*             autotools_output_get_codeslayer    (AutotoolsOutput *output);
+AutotoolsConfiguration*  autotools_output_get_configuration (AutotoolsOutput        *output);
+CodeSlayer*              autotools_output_get_codeslayer    (AutotoolsOutput        *output);
+void                     autotools_output_create_links      (AutotoolsOutput        *output);
 
 G_END_DECLS
 
