@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include "autotools-output.h"
-#include <codeslayer/codeslayer-linker.h>
+#include <codeslayer/codeslayer-editor-linker.h>
 
 typedef struct
 {
@@ -41,6 +41,7 @@ struct _AutotoolsOutputPrivate
 {
   AutotoolsConfiguration *configuration;
   CodeSlayer             *codeslayer;
+  CodeSlayerEditorLinker *linker;
 };
 
 G_DEFINE_TYPE (AutotoolsOutput, autotools_output, GTK_TYPE_TEXT_VIEW)
@@ -62,6 +63,11 @@ autotools_output_init (AutotoolsOutput *output)
 static void
 autotools_output_finalize (AutotoolsOutput *output)
 {
+  AutotoolsOutputPrivate *priv;
+  priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
+
+  g_object_unref (priv->linker);
+
   G_OBJECT_CLASS (autotools_output_parent_class)->finalize (G_OBJECT (output));
 }
 
@@ -77,7 +83,7 @@ autotools_output_new (AutotoolsConfiguration *configuration,
   priv->configuration = configuration;
   priv->codeslayer = codeslayer;
   
-  codeslayer_linker_new (codeslayer, GTK_TEXT_VIEW (output));
+  priv->linker = codeslayer_editor_linker_new (codeslayer, GTK_TEXT_VIEW (output));
 
   return output;
 }
