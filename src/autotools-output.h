@@ -51,7 +51,6 @@ GtkWidget*               autotools_output_new               (AutotoolsConfigurat
 
 AutotoolsConfiguration*  autotools_output_get_configuration (AutotoolsOutput        *output);
 CodeSlayer*              autotools_output_get_codeslayer    (AutotoolsOutput        *output);
-void                     autotools_output_create_links      (AutotoolsOutput        *output);
 
 G_END_DECLS
 
