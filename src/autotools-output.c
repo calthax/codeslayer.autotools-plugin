@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 #include "autotools-output.h"
-#include <codeslayer/codeslayer-editor-linker.h>
 
 typedef struct
 {
@@ -83,7 +82,7 @@ autotools_output_new (AutotoolsConfiguration *configuration,
   priv->configuration = configuration;
   priv->codeslayer = codeslayer;
   
-  priv->linker = codeslayer_editor_linker_new (codeslayer, GTK_TEXT_VIEW (output));
+  priv->linker = codeslayer_get_editor_linker (codeslayer, GTK_TEXT_VIEW (output));
 
   return output;
 }
