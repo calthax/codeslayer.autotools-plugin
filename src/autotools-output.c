@@ -108,5 +108,5 @@ autotools_output_create_links (AutotoolsOutput *output)
 {
   AutotoolsOutputPrivate *priv;
   priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
-  codeslayer_editor_create_links (priv->linker);
+  codeslayer_editor_linker_create_links (priv->linker);
 }
