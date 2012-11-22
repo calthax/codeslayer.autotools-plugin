@@ -102,3 +102,11 @@ autotools_output_get_codeslayer (AutotoolsOutput *output)
   priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
   return priv->codeslayer;
 }
+
+void
+autotools_output_create_links (AutotoolsOutput *output)
+{
+  AutotoolsOutputPrivate *priv;
+  priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
+  codeslayer_editor_create_links (priv->linker);
+}
