@@ -29,6 +29,13 @@ typedef struct
   gchar           *text;
 } OutputContext;
 
+typedef struct
+{
+  AutotoolsOutput *output;
+  gint id;  
+  gchar *text;
+} Process;
+
 static void autotools_engine_class_init                          (AutotoolsEngineClass   *klass);
 static void autotools_engine_init                                (AutotoolsEngine        *engine);
 static void autotools_engine_finalize                            (AutotoolsEngine        *engine);
@@ -83,6 +90,9 @@ static gboolean clear_text                                       (AutotoolsOutpu
 static gboolean append_text                                      (OutputContext          *context);
 static void     destroy_text                                     (OutputContext          *context);
 static gboolean create_links                                     (AutotoolsOutput        *output);
+static gboolean start_process                                    (Process                *process);
+static gboolean stop_process                                     (Process                *process);
+static void destroy_process                                      (Process                *process);                                  
                                                    
 #define AUTOTOOLS_ENGINE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_ENGINE_TYPE, AutotoolsEnginePrivate))
@@ -514,15 +524,16 @@ static void
 execute_make (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
-  CodeSlayer *codeslayer;             
   const gchar *build_directory;             
   gchar *command;
-  gint process_id;
-  
-  codeslayer = autotools_output_get_codeslayer (output);
-  
-  process_id = codeslayer_add_to_processes (codeslayer, _("Make..."), NULL, NULL);
+  Process *process;
 
+  process = g_malloc (sizeof (Process));
+  process->output = output;
+  process->text = g_strdup (_("Make..."));
+
+  g_idle_add ((GSourceFunc) start_process, process);
+  
   configuration = autotools_output_get_configuration (output);
   build_directory = autotools_configuration_get_build_directory (configuration);
   
@@ -530,7 +541,7 @@ execute_make (AutotoolsOutput *output)
   run_command (output, command);
   g_free (command);
 
-  codeslayer_remove_from_processes (codeslayer, process_id);
+  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) stop_process, process, (GDestroyNotify) destroy_process);
 }
 
 static void
@@ -538,14 +549,23 @@ execute_make_install (AutotoolsOutput *output)
 {
   AutotoolsConfiguration *configuration;
   const gchar *build_directory;             
-  gchar *command;
+  gchar *command;  
+  Process *process;
+
+  process = g_malloc (sizeof (Process));
+  process->output = output;
+  process->text = g_strdup (_("Make Install..."));
+
+  g_idle_add ((GSourceFunc) start_process, process);
   
   configuration = autotools_output_get_configuration (output);
   build_directory = autotools_configuration_get_build_directory (configuration);
   
   command = g_strconcat ("cd ", build_directory, ";make install 2>&1", NULL);
   run_command (output, command);
-  g_free (command);    
+  g_free (command);   
+  
+  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) stop_process, process, (GDestroyNotify) destroy_process); 
 }
 
 static void
@@ -554,6 +574,13 @@ execute_make_clean (AutotoolsOutput *output)
   AutotoolsConfiguration *configuration;
   const gchar *build_directory;             
   gchar *command;
+  Process *process;
+
+  process = g_malloc (sizeof (Process));
+  process->output = output;
+  process->text = g_strdup (_("Make Clean..."));
+
+  g_idle_add ((GSourceFunc) start_process, process);
   
   configuration = autotools_output_get_configuration (output);
   build_directory = autotools_configuration_get_build_directory (configuration);
@@ -561,6 +588,8 @@ execute_make_clean (AutotoolsOutput *output)
   command = g_strconcat ("cd ", build_directory, ";make clean 2>&1", NULL);
   run_command (output, command);
   g_free (command);
+  
+  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) stop_process, process, (GDestroyNotify) destroy_process); 
 }
 
 static void
@@ -708,6 +737,33 @@ run_command (AutotoolsOutput *output,
     }
     
   g_idle_add ((GSourceFunc) create_links, output);
+}
+
+static gboolean 
+start_process (Process *process)
+{
+  gint id;
+  CodeSlayer *codeslayer; 
+  codeslayer = autotools_output_get_codeslayer (process->output);
+  id = codeslayer_add_to_processes (codeslayer, process->text, NULL, NULL);
+  process->id = id;
+  return FALSE;
+}
+
+static gboolean 
+stop_process (Process *process)
+{
+  CodeSlayer *codeslayer; 
+  codeslayer = autotools_output_get_codeslayer (process->output);
+  codeslayer_remove_from_processes (codeslayer, process->id);
+  return FALSE;
+}
+
+static void 
+destroy_process (Process *process)
+{
+  g_free (process->text);
+  g_free (process);
 }
 
 static gboolean 
