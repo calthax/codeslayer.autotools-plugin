@@ -745,7 +745,7 @@ start_process (Process *process)
   gint id;
   CodeSlayer *codeslayer; 
   codeslayer = autotools_output_get_codeslayer (process->output);
-  id = codeslayer_add_to_processes (codeslayer, process->text, NULL, NULL);
+  id = codeslayer_add_to_process_bar (codeslayer, process->text, NULL, NULL);
   process->id = id;
   return FALSE;
 }
@@ -755,7 +755,7 @@ stop_process (Process *process)
 {
   CodeSlayer *codeslayer; 
   codeslayer = autotools_output_get_codeslayer (process->output);
-  codeslayer_remove_from_processes (codeslayer, process->id);
+  codeslayer_remove_from_process_bar (codeslayer, process->id);
   return FALSE;
 }
 
