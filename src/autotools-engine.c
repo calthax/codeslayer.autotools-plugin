@@ -19,7 +19,7 @@
 #include <codeslayer/codeslayer-utils.h>
 #include "autotools-engine.h"
 #include "autotools-project-properties.h"
-#include "autotools-configuration.h"
+#include "autotools-config.h"
 #include "autotools-notebook.h"
 #include "autotools-output.h"
 
@@ -36,63 +36,68 @@ typedef struct
   gchar *text;
 } Process;
 
-static void autotools_engine_class_init                          (AutotoolsEngineClass   *klass);
-static void autotools_engine_init                                (AutotoolsEngine        *engine);
-static void autotools_engine_finalize                            (AutotoolsEngine        *engine);
+#define MAIN "main"
+#define CONFIGURE_FILE "configure_file"
+#define CONFIGURE_PARAMETERS "configure_parameters"
+#define BUILD_FOLDER "build_folder"
+#define AUTOTOOLS_CONF "autotools.conf"
 
-static void make_action                                          (AutotoolsEngine        *engine);
-static void project_make_action                                  (AutotoolsEngine        *engine, 
-                                                                  GList                  *selections);
+static void autotools_engine_class_init              (AutotoolsEngineClass *klass);
+static void autotools_engine_init                    (AutotoolsEngine      *engine);
+static void autotools_engine_finalize                (AutotoolsEngine      *engine);
 
-static void make_install_action                                  (AutotoolsEngine        *engine);
-static void project_make_install_action                          (AutotoolsEngine        *engine, 
-                                                                  GList                  *selections);
+static void make_action                              (AutotoolsEngine      *engine);
+static void project_make_action                      (AutotoolsEngine      *engine, 
+                                                      GList                *selections);
 
-static void make_clean_action                                    (AutotoolsEngine        *engine);
-static void project_make_clean_action                            (AutotoolsEngine        *engine, 
-                                                                  GList                  *selections);
+static void make_install_action                      (AutotoolsEngine      *engine);
+static void project_make_install_action              (AutotoolsEngine      *engine, 
+                                                      GList                *selections);
 
-static void project_configure_action                             (AutotoolsEngine        *engine, 
-                                                                  GList                  *selections);
+static void make_clean_action                        (AutotoolsEngine      *engine);
+static void project_make_clean_action                (AutotoolsEngine      *engine, 
+                                                      GList                *selections);
 
-static void project_autoreconf_action                            (AutotoolsEngine        *engine, 
-                                                                  GList                  *selections);
+static void project_configure_action                 (AutotoolsEngine      *engine, 
+                                                      GList                *selections);
 
-static void execute_make                                         (AutotoolsOutput        *output);
-static void execute_make_clean                                   (AutotoolsOutput        *output);
-static void execute_make_install                                 (AutotoolsOutput        *output);
-static void execute_configure                                    (AutotoolsOutput        *output);
-static void execute_autoreconf                                   (AutotoolsOutput        *output);
+static void project_autoreconf_action                (AutotoolsEngine      *engine, 
+                                                      GList                *selections);
 
-static void run_command                                          (AutotoolsOutput        *output,
-                                                                  gchar                  *command);
+static void execute_make                             (AutotoolsOutput      *output);
+static void execute_make_clean                       (AutotoolsOutput      *output);
+static void execute_make_install                     (AutotoolsOutput      *output);
+static void execute_configure                        (AutotoolsOutput      *output);
+static void execute_autoreconf                       (AutotoolsOutput      *output);
 
-static AutotoolsConfiguration* get_configuration_by_project_key  (AutotoolsEngine        *engine, 
-                                                                  const gchar            *project_key);
-static void execute_configure                                    (AutotoolsOutput        *output);
-static AutotoolsOutput* get_output_by_active_editor              (AutotoolsEngine        *engine);
+static void run_command                              (AutotoolsOutput      *output,
+                                                      gchar                *command);
 
-static AutotoolsOutput* get_output_by_project                    (AutotoolsEngine        *engine, 
-                                                                  CodeSlayerProject      *project);
+static AutotoolsConfig* get_config_by_project        (AutotoolsEngine      *engine, 
+                                                      CodeSlayerProject    *project);
+static void execute_configure                        (AutotoolsOutput      *output);
+static AutotoolsOutput* get_output_by_active_editor  (AutotoolsEngine      *engine);
 
-static void project_properties_opened_action                     (AutotoolsEngine        *engine,
-                                                                  CodeSlayerProject      *project);
-static void project_properties_saved_action                      (AutotoolsEngine        *engine,
-                                                                  CodeSlayerProject      *project);
+static AutotoolsOutput* get_output_by_project        (AutotoolsEngine      *engine, 
+                                                      CodeSlayerProject    *project);
+
+static void project_properties_opened_action         (AutotoolsEngine      *engine,
+                                                      CodeSlayerProject    *project);
+static void project_properties_saved_action          (AutotoolsEngine      *engine,
+                                                      CodeSlayerProject    *project);
                                                                         
-static void save_configuration_action                            (AutotoolsEngine        *engine,
-                                                                  AutotoolsConfiguration *configuration);
+static void save_config_action                       (AutotoolsEngine      *engine,
+                                                      AutotoolsConfig      *config);
                                                                   
-static CodeSlayerProject* get_selections_project                 (GList                  *selections);
+static CodeSlayerProject* get_selections_project     (GList                *selections);
 
-static gchar* get_configuration_file_path                        (AutotoolsEngine        *engine);
-static gboolean clear_text                                       (AutotoolsOutput        *output);
-static gboolean append_text                                      (OutputContext          *context);
-static void     destroy_text                                     (OutputContext          *context);
-static gboolean create_links                                     (AutotoolsOutput        *output);
-static gboolean start_process                                    (Process                *process);
-static gboolean stop_process                                     (Process                *process);
-static void destroy_process                                      (Process                *process);                                  
+static gboolean clear_text                           (AutotoolsOutput      *output);
+static gboolean append_text                          (OutputContext        *context);
+static void     destroy_text                         (OutputContext        *context);
+static gboolean create_links                         (AutotoolsOutput      *output);
+static gboolean start_process                        (Process              *process);
+static gboolean stop_process                         (Process              *process);
+static void destroy_process                          (Process              *process);                                  
                                                    
 #define AUTOTOOLS_ENGINE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_ENGINE_TYPE, AutotoolsEnginePrivate))
@@ -106,7 +111,7 @@ struct _AutotoolsEnginePrivate
   GtkWidget  *project_properties;
   GtkWidget  *projects_menu;
   GtkWidget  *notebook;
-  GList      *configurations;
+  GList      *configs;
   gulong      properties_opened_id;
   gulong      properties_saved_id;
 };
@@ -126,7 +131,7 @@ autotools_engine_init (AutotoolsEngine *engine)
 {
   AutotoolsEnginePrivate *priv;
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
-  priv->configurations = NULL;
+  priv->configs = NULL;
 }
 
 static void
@@ -134,11 +139,11 @@ autotools_engine_finalize (AutotoolsEngine *engine)
 {
   AutotoolsEnginePrivate *priv;
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
-  if (priv->configurations != NULL)
+  if (priv->configs != NULL)
     {
-      g_list_foreach (priv->configurations, (GFunc) g_object_unref, NULL);
-      g_list_free (priv->configurations);
-      priv->configurations = NULL;    
+      g_list_foreach (priv->configs, (GFunc) g_object_unref, NULL);
+      g_list_free (priv->configs);
+      priv->configs = NULL;    
     }
   
   g_signal_handler_disconnect (priv->codeslayer, priv->properties_opened_id);
@@ -196,59 +201,56 @@ autotools_engine_new (CodeSlayer *codeslayer,
   priv->properties_saved_id = g_signal_connect_swapped (G_OBJECT (codeslayer), "project-properties-saved",
                                                         G_CALLBACK (project_properties_saved_action), engine);
 
-  g_signal_connect_swapped (G_OBJECT (project_properties), "save-configuration",
-                            G_CALLBACK (save_configuration_action), engine);
+  g_signal_connect_swapped (G_OBJECT (project_properties), "save-config",
+                            G_CALLBACK (save_config_action), engine);
 
   return engine;
 }
 
-void 
-autotools_engine_load_configurations (AutotoolsEngine *engine)
+static AutotoolsConfig*
+get_config_by_project (AutotoolsEngine   *engine, 
+                       CodeSlayerProject *project)
 {
   AutotoolsEnginePrivate *priv;
-  GList *configurations;
+  AutotoolsConfig *config;
+  GKeyFile *keyfile;
+  gchar *folder_path;
   gchar *file_path;
-
-  priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
+  gchar *configure_file;
+  gchar *configure_parameters;
+  gchar *build_folder;
   
-  file_path = get_configuration_file_path (engine);
-  configurations = codeslayer_utils_get_gobjects (AUTOTOOLS_CONFIGURATION_TYPE,
-                                                  FALSE,
-                                                  file_path, 
-                                                  "autotool",
-                                                  "project_key", G_TYPE_STRING,
-                                                  "configure_file", G_TYPE_STRING, 
-                                                  "configure_parameters", G_TYPE_STRING, 
-                                                  "build_directory", G_TYPE_STRING, 
-                                                  NULL);
-  priv->configurations = configurations;
-  g_free (file_path);
-}
-
-static AutotoolsConfiguration*
-get_configuration_by_project_key (AutotoolsEngine *engine, 
-                                  const gchar     *project_key)
-{
-  AutotoolsEnginePrivate *priv;
-  GList *list;
-
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
-  list = priv->configurations;
-  while (list != NULL)
+  folder_path = codeslayer_get_project_config_folder_path (priv->codeslayer, project);
+  file_path = g_build_filename (folder_path, AUTOTOOLS_CONF, NULL);
+  
+  if (!codeslayer_utils_file_exists (file_path))
     {
-      AutotoolsConfiguration *configuration = list->data;
-      const gchar *key;
-      
-      key = autotools_configuration_get_project_key (configuration);
-      
-      if (g_strcmp0 (project_key, key) == 0)
-        return configuration;
-
-      list = g_list_next (list);
+      g_free (folder_path);
+      g_free (file_path);
+      return NULL;
     }
 
-  return NULL;
+  keyfile = codeslayer_utils_get_keyfile (file_path);
+  configure_file = g_key_file_get_string (keyfile, MAIN, CONFIGURE_FILE, NULL);
+  configure_parameters = g_key_file_get_string (keyfile, MAIN, CONFIGURE_PARAMETERS, NULL);
+  build_folder = g_key_file_get_string (keyfile, MAIN, BUILD_FOLDER, NULL);
+  
+  config = autotools_config_new ();
+  autotools_config_set_project (config, project);
+  autotools_config_set_configure_file (config, configure_file);
+  autotools_config_set_configure_parameters (config, configure_parameters);
+  autotools_config_set_build_folder (config, build_folder);
+  
+  g_free (folder_path);
+  g_free (file_path);
+  g_free (configure_file);
+  g_free (configure_parameters);
+  g_free (build_folder);
+  g_key_file_free (keyfile);
+  
+  return config;
 }
 
 static void
@@ -256,16 +258,15 @@ project_properties_opened_action (AutotoolsEngine   *engine,
                                   CodeSlayerProject *project)
 {
   AutotoolsEnginePrivate *priv;
-  const gchar *project_key;
-  AutotoolsConfiguration *configuration;
-  
-  priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
+  AutotoolsConfig *config;
 
-  project_key = codeslayer_project_get_key (project);
-  configuration = get_configuration_by_project_key (engine, project_key);
+  priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
   
+  config = get_config_by_project (engine, project);
   autotools_project_properties_opened (AUTOTOOLS_PROJECT_PROPERTIES (priv->project_properties),
-                                       configuration, project);
+                                       config, project);
+  if (config != NULL)
+    g_object_unref (config);                                       
 }
 
 static void
@@ -273,83 +274,49 @@ project_properties_saved_action (AutotoolsEngine   *engine,
                                  CodeSlayerProject *project)
 {
   AutotoolsEnginePrivate *priv;
-  const gchar *project_key;
-  AutotoolsConfiguration *configuration;
+  AutotoolsConfig *config;
   
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
-  project_key = codeslayer_project_get_key (project);
-  configuration = get_configuration_by_project_key (engine, project_key);
-  
+  config = get_config_by_project (engine, project);
   autotools_project_properties_saved (AUTOTOOLS_PROJECT_PROPERTIES (priv->project_properties),
-                                      configuration, project);
+                                      config, project);
+  if (config != NULL)
+    g_object_unref (config);                                       
 }
 
 static void
-save_configuration_action (AutotoolsEngine        *engine,
-                           AutotoolsConfiguration *configuration)
+save_config_action (AutotoolsEngine *engine,
+                    AutotoolsConfig *config)
 {
   AutotoolsEnginePrivate *priv;
-  GList *list;
-  GList *tmp;
-  gchar *file_path;
-    
-  priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
-  
-  if (configuration)
-    priv->configurations = g_list_prepend (priv->configurations, configuration);
-
-  list = g_list_copy (priv->configurations);
-  tmp = list;
-  
-  while (tmp != NULL)
-    {
-      AutotoolsConfiguration *configuration = tmp->data;
-      const gchar *configure_file;
-      const gchar *configure_parameters;
-      const gchar *build_directory;
-
-      configure_file = autotools_configuration_get_configure_file (configuration);
-      configure_parameters = autotools_configuration_get_configure_parameters (configuration);
-      build_directory = autotools_configuration_get_build_directory (configuration);
-      
-      if (g_utf8_strlen (configure_file, -1) == 0 &&
-          g_utf8_strlen (configure_parameters, -1) == 0 &&
-          g_utf8_strlen (build_directory, -1) == 0)
-        priv->configurations = g_list_remove (priv->configurations, configuration);
-      tmp = g_list_next (tmp);
-    }
-    
-  g_list_free (list);    
-  
-  file_path = get_configuration_file_path (engine);  
-  codeslayer_utils_save_gobjects (priv->configurations,
-                                  file_path, 
-                                  "autotool",
-                                  "project_key", G_TYPE_STRING,
-                                  "configure_file", G_TYPE_STRING, 
-                                  "configure_parameters", G_TYPE_STRING, 
-                                  "build_directory", G_TYPE_STRING, 
-                                  NULL);  
-  g_free (file_path);
-}
-
-static gchar*
-get_configuration_file_path (AutotoolsEngine *engine)
-{
-  AutotoolsEnginePrivate *priv;
+  CodeSlayerProject *project;
   gchar *folder_path;
   gchar *file_path;
-  
+  const gchar *configure_file;
+  const gchar *configure_parameters;
+  const gchar *build_folder;
+  GKeyFile *keyfile;
+ 
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
-  folder_path = codeslayer_get_active_group_folder_path (priv->codeslayer);  
-  file_path = g_build_filename (folder_path, "autotools.xml", NULL);
-  g_free (folder_path);
-  
-  return file_path;
+  project = autotools_config_get_project (config);  
+  folder_path = codeslayer_get_project_config_folder_path (priv->codeslayer, project);
+  file_path = codeslayer_utils_get_file_path (folder_path, AUTOTOOLS_CONF);
+  keyfile = codeslayer_utils_get_keyfile (file_path);
+
+  configure_file = autotools_config_get_configure_file (config);
+  configure_parameters = autotools_config_get_configure_parameters (config);
+  build_folder = autotools_config_get_build_folder (config);
+  g_key_file_set_string (keyfile, MAIN, CONFIGURE_FILE, configure_file);
+  g_key_file_set_string (keyfile, MAIN, CONFIGURE_PARAMETERS, configure_parameters);
+  g_key_file_set_string (keyfile, MAIN, BUILD_FOLDER, build_folder);
+
+  codeslayer_utils_save_keyfile (keyfile, file_path);  
+  g_key_file_free (keyfile);
+  g_free (file_path); 
 }
-                            
+
 static void
 make_action (AutotoolsEngine *engine)
 {
@@ -523,8 +490,8 @@ get_selections_project (GList *selections)
 static void
 execute_make (AutotoolsOutput *output)
 {
-  AutotoolsConfiguration *configuration;
-  const gchar *build_directory;             
+  AutotoolsConfig *config;
+  const gchar *build_folder;             
   gchar *command;
   Process *process;
 
@@ -534,10 +501,10 @@ execute_make (AutotoolsOutput *output)
 
   g_idle_add ((GSourceFunc) start_process, process);
   
-  configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  config = autotools_output_get_config (output);
+  build_folder = autotools_config_get_build_folder (config);
   
-  command = g_strconcat ("cd ", build_directory, ";make 2>&1", NULL);
+  command = g_strconcat ("cd ", build_folder, ";make 2>&1", NULL);
   run_command (output, command);
   g_free (command);
 
@@ -547,8 +514,8 @@ execute_make (AutotoolsOutput *output)
 static void
 execute_make_install (AutotoolsOutput *output)
 {
-  AutotoolsConfiguration *configuration;
-  const gchar *build_directory;             
+  AutotoolsConfig *config;
+  const gchar *build_folder;             
   gchar *command;  
   Process *process;
 
@@ -558,10 +525,10 @@ execute_make_install (AutotoolsOutput *output)
 
   g_idle_add ((GSourceFunc) start_process, process);
   
-  configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  config = autotools_output_get_config (output);
+  build_folder = autotools_config_get_build_folder (config);
   
-  command = g_strconcat ("cd ", build_directory, ";make install 2>&1", NULL);
+  command = g_strconcat ("cd ", build_folder, ";make install 2>&1", NULL);
   run_command (output, command);
   g_free (command);   
   
@@ -571,8 +538,8 @@ execute_make_install (AutotoolsOutput *output)
 static void
 execute_make_clean (AutotoolsOutput *output)
 {
-  AutotoolsConfiguration *configuration;
-  const gchar *build_directory;             
+  AutotoolsConfig *config;
+  const gchar *build_folder;             
   gchar *command;
   Process *process;
 
@@ -582,10 +549,10 @@ execute_make_clean (AutotoolsOutput *output)
 
   g_idle_add ((GSourceFunc) start_process, process);
   
-  configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
+  config = autotools_output_get_config (output);
+  build_folder = autotools_config_get_build_folder (config);
   
-  command = g_strconcat ("cd ", build_directory, ";make clean 2>&1", NULL);
+  command = g_strconcat ("cd ", build_folder, ";make clean 2>&1", NULL);
   run_command (output, command);
   g_free (command);
   
@@ -595,20 +562,20 @@ execute_make_clean (AutotoolsOutput *output)
 static void
 execute_configure (AutotoolsOutput *output)
 {
-  AutotoolsConfiguration *configuration;
-  const gchar *build_directory;
+  AutotoolsConfig *config;
+  const gchar *build_folder;
   const gchar *configure_file;             
   const gchar *configure_parameters;             
   gchar *configure_file_path;             
   gchar *command;
   
-  configuration = autotools_output_get_configuration (output);
-  build_directory = autotools_configuration_get_build_directory (configuration);
-  configure_file = autotools_configuration_get_configure_file (configuration);
+  config = autotools_output_get_config (output);
+  build_folder = autotools_config_get_build_folder (config);
+  configure_file = autotools_config_get_configure_file (config);
   configure_file_path = g_path_get_dirname (configure_file);
-  configure_parameters = autotools_configuration_get_configure_parameters (configuration);
+  configure_parameters = autotools_config_get_configure_parameters (config);
   
-  command = g_strconcat ("cd ", build_directory, ";", configure_file_path, 
+  command = g_strconcat ("cd ", build_folder, ";", configure_file_path, 
                          G_DIR_SEPARATOR_S, "configure ", configure_parameters, " 2>&1", NULL);
   g_free (configure_file_path);    
 
@@ -619,14 +586,14 @@ execute_configure (AutotoolsOutput *output)
 static void
 execute_autoreconf (AutotoolsOutput *output)
 {
-  AutotoolsConfiguration *configuration;
+  AutotoolsConfig *config;
   const gchar *configure_file;             
   gchar *configure_file_path;             
   gchar *command;
   OutputContext *context;
   
-  configuration = autotools_output_get_configuration (output);
-  configure_file = autotools_configuration_get_configure_file (configuration);
+  config = autotools_output_get_config (output);
+  configure_file = autotools_config_get_configure_file (config);
   configure_file_path = g_path_get_dirname (configure_file);
   
   command = g_strconcat ("cd ", configure_file_path, ";autoreconf 2>&1", NULL);
@@ -673,23 +640,21 @@ get_output_by_project (AutotoolsEngine   *engine,
 {
   AutotoolsEnginePrivate *priv;
   GtkWidget  *notebook;
-  const gchar *project_key;
   const gchar *project_name;
-  AutotoolsConfiguration *configuration;
+  AutotoolsConfig *config;
   GtkWidget *output;
   
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
   notebook = priv->notebook;
   
-  project_key = codeslayer_project_get_key (project);
   project_name = codeslayer_project_get_name (project);
-  configuration = get_configuration_by_project_key (engine, project_key);
+  config = get_config_by_project (engine, project);
   
-  if (configuration == NULL)
+  if (config == NULL)
     {
       GtkWidget *dialog;
       gchar *msg;
-      msg = g_strconcat ("There is no configuration for project ", 
+      msg = g_strconcat ("There is no config for project ", 
                          project_name, ".", NULL);      
       dialog =  gtk_message_dialog_new (NULL, 
                                         GTK_DIALOG_MODAL,
@@ -702,11 +667,11 @@ get_output_by_project (AutotoolsEngine   *engine,
       return NULL;
     }
   
-  output = autotools_notebook_get_output_by_configuration (AUTOTOOLS_NOTEBOOK (notebook), 
-                                                           configuration);
+  output = autotools_notebook_get_output_by_config (AUTOTOOLS_NOTEBOOK (notebook), 
+                                                           config);
   if (output == NULL)
     {
-      output = autotools_output_new (configuration, priv->codeslayer);
+      output = autotools_output_new (config, priv->codeslayer);
       autotools_notebook_add_output (AUTOTOOLS_NOTEBOOK (priv->notebook), output, project_name);
     }                                                           
 

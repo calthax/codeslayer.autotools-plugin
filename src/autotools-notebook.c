@@ -105,8 +105,8 @@ close_action (AutotoolsNotebookTab *notebook_tab,
 }
 
 GtkWidget*  
-autotools_notebook_get_output_by_configuration  (AutotoolsNotebook      *notebook, 
-                                                 AutotoolsConfiguration *configuration)
+autotools_notebook_get_output_by_config  (AutotoolsNotebook      *notebook, 
+                                                 AutotoolsConfig *config)
 {
   gint pages;
   gint i;
@@ -119,7 +119,7 @@ autotools_notebook_get_output_by_configuration  (AutotoolsNotebook      *noteboo
       GtkWidget *output;
       notebook_page = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), i);
       output = autotools_notebook_page_get_output (AUTOTOOLS_NOTEBOOK_PAGE (notebook_page));      
-      if (autotools_output_get_configuration (AUTOTOOLS_OUTPUT (output)) == configuration)
+      if (autotools_output_get_config (AUTOTOOLS_OUTPUT (output)) == config)
         return output;
     }
     

@@ -46,7 +46,6 @@ activate (CodeSlayer *codeslayer)
   projects_popup = autotools_projects_popup_new ();
   notebook = autotools_notebook_new ();
   engine = autotools_engine_new (codeslayer, menu, project_properties, projects_popup, notebook);
-  autotools_engine_load_configurations (engine);
 
   codeslayer_add_to_menubar (codeslayer, GTK_MENU_ITEM (menu));
   codeslayer_add_to_projects_popup (codeslayer, GTK_MENU_ITEM (projects_popup));

@@ -14,8 +14,8 @@ libautotoolscodeslayerplugin_la_SOURCES = \
     autotools-notebook-page.c \
     autotools-notebook-tab.h \
     autotools-notebook-tab.c \
-    autotools-configuration.h \
-    autotools-configuration.c \
+    autotools-config.h \
+    autotools-config.c \
     autotools-engine.h \
     autotools-engine.c \
     autotools-menu.h \

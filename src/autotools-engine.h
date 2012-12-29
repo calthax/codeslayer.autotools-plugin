@@ -51,7 +51,7 @@ AutotoolsEngine*  autotools_engine_new (CodeSlayer *codeslayer,
                                         GtkWidget  *projects_menu,
                                         GtkWidget  *notebook);
                                         
-void autotools_engine_load_configurations (AutotoolsEngine *engine);
+void autotools_engine_load_configs (AutotoolsEngine *engine);
 
 G_END_DECLS
 

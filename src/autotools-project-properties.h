@@ -21,7 +21,7 @@
 
 #include <gtk/gtk.h>
 #include <codeslayer/codeslayer.h>
-#include "autotools-configuration.h"
+#include "autotools-config.h"
 
 G_BEGIN_DECLS
 
@@ -43,7 +43,7 @@ struct _AutotoolsProjectPropertiesClass
 {
   GtkVBoxClass parent_class;
   
-  void (*save_configuration) (AutotoolsProjectProperties *project_properties);  
+  void (*save_config) (AutotoolsProjectProperties *project_properties);  
 };
 
 GType autotools_project_properties_get_type (void) G_GNUC_CONST;
@@ -51,11 +51,11 @@ GType autotools_project_properties_get_type (void) G_GNUC_CONST;
 GtkWidget*  autotools_project_properties_new  (void);
 
 void autotools_project_properties_opened      (AutotoolsProjectProperties *project_properties,
-                                               AutotoolsConfiguration     *configuration, 
+                                               AutotoolsConfig     *config, 
                                                CodeSlayerProject          *project);
 
 void autotools_project_properties_saved       (AutotoolsProjectProperties *project_properties,
-                                               AutotoolsConfiguration     *configuration, 
+                                               AutotoolsConfig     *config, 
                                                CodeSlayerProject          *project);
 
 G_END_DECLS

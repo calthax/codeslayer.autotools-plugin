@@ -20,7 +20,7 @@
 #define	__AUTOTOOLS_NOTEBOOK_H__
 
 #include <gtk/gtk.h>
-#include "autotools-configuration.h"
+#include "autotools-config.h"
 
 G_BEGIN_DECLS
 
@@ -52,8 +52,8 @@ void        autotools_notebook_add_output                   (AutotoolsNotebook  
                                                              GtkWidget              *output, 
                                                              const gchar            *label);
 
-GtkWidget*  autotools_notebook_get_output_by_configuration  (AutotoolsNotebook      *notebook, 
-                                                             AutotoolsConfiguration *configuration);
+GtkWidget*  autotools_notebook_get_output_by_config  (AutotoolsNotebook      *notebook, 
+                                                             AutotoolsConfig *config);
 
 void        autotools_notebook_select_page_by_output        (AutotoolsNotebook      *notebook, 
                                                              GtkWidget              *output);
