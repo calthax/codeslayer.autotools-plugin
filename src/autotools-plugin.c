@@ -39,7 +39,7 @@ G_MODULE_EXPORT void
 activate (CodeSlayer *codeslayer)
 {
   GtkAccelGroup *accel_group;
-  accel_group = codeslayer_get_menubar_accel_group (codeslayer);
+  accel_group = codeslayer_get_menu_bar_accel_group (codeslayer);
   menu = autotools_menu_new (accel_group);
 
   project_properties = autotools_project_properties_new ();
@@ -47,7 +47,7 @@ activate (CodeSlayer *codeslayer)
   notebook = autotools_notebook_new ();
   engine = autotools_engine_new (codeslayer, menu, project_properties, projects_popup, notebook);
 
-  codeslayer_add_to_menubar (codeslayer, GTK_MENU_ITEM (menu));
+  codeslayer_add_to_menu_bar (codeslayer, GTK_MENU_ITEM (menu));
   codeslayer_add_to_projects_popup (codeslayer, GTK_MENU_ITEM (projects_popup));
   codeslayer_add_to_project_properties (codeslayer, project_properties, "Autotools");
   codeslayer_add_to_bottom_pane (codeslayer, notebook, "Autotools");
@@ -56,7 +56,7 @@ activate (CodeSlayer *codeslayer)
 G_MODULE_EXPORT void 
 deactivate (CodeSlayer *codeslayer)
 {
-  codeslayer_remove_from_menubar (codeslayer, GTK_MENU_ITEM (menu));
+  codeslayer_remove_from_menu_bar (codeslayer, GTK_MENU_ITEM (menu));
   codeslayer_remove_from_projects_popup (codeslayer, GTK_MENU_ITEM (projects_popup));
   codeslayer_remove_from_project_properties (codeslayer, project_properties);
   codeslayer_remove_from_bottom_pane (codeslayer, notebook);
