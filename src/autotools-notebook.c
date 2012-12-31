@@ -105,8 +105,8 @@ close_action (AutotoolsNotebookTab *notebook_tab,
 }
 
 GtkWidget*  
-autotools_notebook_get_output_by_config  (AutotoolsNotebook      *notebook, 
-                                                 AutotoolsConfig *config)
+autotools_notebook_get_output_by_config (AutotoolsNotebook *notebook, 
+                                         AutotoolsConfig   *config)
 {
   gint pages;
   gint i;
@@ -116,11 +116,22 @@ autotools_notebook_get_output_by_config  (AutotoolsNotebook      *notebook,
   for (i = 0; i < pages; i++)
     {
       GtkWidget *notebook_page;
-      GtkWidget *output;
+      CodeSlayerProject *project;
+
+      GtkWidget *current_output;
+      AutotoolsConfig *current_config;
+      CodeSlayerProject *current_project;
+      
       notebook_page = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), i);
-      output = autotools_notebook_page_get_output (AUTOTOOLS_NOTEBOOK_PAGE (notebook_page));      
-      if (autotools_output_get_config (AUTOTOOLS_OUTPUT (output)) == config)
-        return output;
+
+      current_output = autotools_notebook_page_get_output (AUTOTOOLS_NOTEBOOK_PAGE (notebook_page));    
+      current_config = autotools_output_get_config (AUTOTOOLS_OUTPUT (current_output));
+      current_project = autotools_config_get_project (AUTOTOOLS_CONFIG (current_config));
+      
+      project = autotools_config_get_project (AUTOTOOLS_CONFIG (config));
+      
+      if (current_project == project)
+        return current_output;
     }
     
   return NULL;    

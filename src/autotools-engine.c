@@ -669,11 +669,12 @@ get_output_by_project (AutotoolsEngine   *engine,
     }
   
   output = autotools_notebook_get_output_by_config (AUTOTOOLS_NOTEBOOK (notebook), 
-                                                           config);
+                                                    config);
   if (output == NULL)
     {
       output = autotools_output_new (config, priv->codeslayer);
-      autotools_notebook_add_output (AUTOTOOLS_NOTEBOOK (priv->notebook), output, project_name);
+      autotools_notebook_add_output (AUTOTOOLS_NOTEBOOK (priv->notebook), output, 
+                                                         project_name);
     }                                                           
 
   return AUTOTOOLS_OUTPUT (output);
@@ -697,7 +698,8 @@ run_command (AutotoolsOutput *output,
           context = g_malloc (sizeof (OutputContext));
           context->output = output;
           context->text = g_strdup (out);
-          g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) append_text, context, (GDestroyNotify)destroy_text);
+          g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) append_text, 
+                           context, (GDestroyNotify)destroy_text);
         }
       pclose (file);
     }
