@@ -82,7 +82,7 @@ autotools_output_new (AutotoolsConfig *config,
   priv->config = config;
   priv->codeslayer = codeslayer;
   
-  priv->linker = codeslayer_get_editor_linker (codeslayer, GTK_TEXT_VIEW (output));
+  priv->linker = codeslayer_create_editor_linker (codeslayer, GTK_TEXT_VIEW (output));
 
   return output;
 }
