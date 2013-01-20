@@ -213,7 +213,7 @@ get_config_by_project (AutotoolsEngine   *engine,
 {
   AutotoolsEnginePrivate *priv;
   AutotoolsConfig *config;
-  GKeyFile *keyfile;
+  GKeyFile *key_file;
   gchar *folder_path;
   gchar *file_path;
   gchar *configure_file;
@@ -232,10 +232,10 @@ get_config_by_project (AutotoolsEngine   *engine,
       return NULL;
     }
 
-  keyfile = codeslayer_utils_get_keyfile (file_path);
-  configure_file = g_key_file_get_string (keyfile, MAIN, CONFIGURE_FILE, NULL);
-  configure_parameters = g_key_file_get_string (keyfile, MAIN, CONFIGURE_PARAMETERS, NULL);
-  build_folder = g_key_file_get_string (keyfile, MAIN, BUILD_FOLDER, NULL);
+  key_file = codeslayer_utils_get_key_file (file_path);
+  configure_file = g_key_file_get_string (key_file, MAIN, CONFIGURE_FILE, NULL);
+  configure_parameters = g_key_file_get_string (key_file, MAIN, CONFIGURE_PARAMETERS, NULL);
+  build_folder = g_key_file_get_string (key_file, MAIN, BUILD_FOLDER, NULL);
   
   config = autotools_config_new ();
   autotools_config_set_project (config, project);
@@ -248,7 +248,7 @@ get_config_by_project (AutotoolsEngine   *engine,
   g_free (configure_file);
   g_free (configure_parameters);
   g_free (build_folder);
-  g_key_file_free (keyfile);
+  g_key_file_free (key_file);
   
   return config;
 }
@@ -296,24 +296,24 @@ save_config_action (AutotoolsEngine *engine,
   const gchar *configure_file;
   const gchar *configure_parameters;
   const gchar *build_folder;
-  GKeyFile *keyfile;
+  GKeyFile *key_file;
  
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
   project = autotools_config_get_project (config);  
   folder_path = codeslayer_get_project_config_folder_path (priv->codeslayer, project);
   file_path = codeslayer_utils_get_file_path (folder_path, AUTOTOOLS_CONF);
-  keyfile = codeslayer_utils_get_keyfile (file_path);
+  key_file = codeslayer_utils_get_key_file (file_path);
 
   configure_file = autotools_config_get_configure_file (config);
   configure_parameters = autotools_config_get_configure_parameters (config);
   build_folder = autotools_config_get_build_folder (config);
-  g_key_file_set_string (keyfile, MAIN, CONFIGURE_FILE, configure_file);
-  g_key_file_set_string (keyfile, MAIN, CONFIGURE_PARAMETERS, configure_parameters);
-  g_key_file_set_string (keyfile, MAIN, BUILD_FOLDER, build_folder);
+  g_key_file_set_string (key_file, MAIN, CONFIGURE_FILE, configure_file);
+  g_key_file_set_string (key_file, MAIN, CONFIGURE_PARAMETERS, configure_parameters);
+  g_key_file_set_string (key_file, MAIN, BUILD_FOLDER, build_folder);
 
-  codeslayer_utils_save_keyfile (keyfile, file_path);  
-  g_key_file_free (keyfile);
+  codeslayer_utils_save_key_file (key_file, file_path);  
+  g_key_file_free (key_file);
   g_free (folder_path);
   g_free (file_path); 
 }
