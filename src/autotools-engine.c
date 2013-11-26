@@ -619,7 +619,7 @@ get_output_by_active_editor (AutotoolsEngine *engine)
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
   codeslayer = priv->codeslayer;
   
-  project = codeslayer_get_active_editor_project (codeslayer);
+  project = codeslayer_get_active_document_project (codeslayer);
   if (project == NULL)
     {
       GtkWidget *dialog;

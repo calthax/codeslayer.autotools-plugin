@@ -40,7 +40,7 @@ struct _AutotoolsOutputPrivate
 {
   AutotoolsConfig *config;
   CodeSlayer             *codeslayer;
-  CodeSlayerEditorLinker *linker;
+  CodeSlayerDocumentLinker *linker;
 };
 
 G_DEFINE_TYPE (AutotoolsOutput, autotools_output, GTK_TYPE_TEXT_VIEW)
@@ -82,7 +82,7 @@ autotools_output_new (AutotoolsConfig *config,
   priv->config = config;
   priv->codeslayer = codeslayer;
   
-  priv->linker = codeslayer_create_editor_linker (codeslayer, GTK_TEXT_VIEW (output));
+  priv->linker = codeslayer_create_document_linker (codeslayer, GTK_TEXT_VIEW (output));
 
   return output;
 }
@@ -108,5 +108,5 @@ autotools_output_create_links (AutotoolsOutput *output)
 {
   AutotoolsOutputPrivate *priv;
   priv = AUTOTOOLS_OUTPUT_GET_PRIVATE (output);
-  codeslayer_editor_linker_create_links (priv->linker);
+  codeslayer_document_linker_create_links (priv->linker);
 }
