@@ -76,7 +76,7 @@ static void run_command                              (AutotoolsOutput      *outp
 static AutotoolsConfig* get_config_by_project        (AutotoolsEngine      *engine, 
                                                       CodeSlayerProject    *project);
 static void execute_configure                        (AutotoolsOutput      *output);
-static AutotoolsOutput* get_output_by_active_editor  (AutotoolsEngine      *engine);
+static AutotoolsOutput* get_output_by_active_document  (AutotoolsEngine      *engine);
 
 static AutotoolsOutput* get_output_by_project        (AutotoolsEngine      *engine, 
                                                       CodeSlayerProject    *project);
@@ -326,7 +326,7 @@ make_action (AutotoolsEngine *engine)
 
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
-  output =  get_output_by_active_editor (engine);
+  output =  get_output_by_active_document (engine);
   if (output)
     {
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
@@ -365,7 +365,7 @@ make_install_action (AutotoolsEngine *engine)
 
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
-  output =  get_output_by_active_editor (engine);
+  output =  get_output_by_active_document (engine);
   if (output)
     {
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
@@ -404,7 +404,7 @@ make_clean_action (AutotoolsEngine *engine)
 
   priv = AUTOTOOLS_ENGINE_GET_PRIVATE (engine);
 
-  output =  get_output_by_active_editor (engine);
+  output =  get_output_by_active_document (engine);
   if (output)
     {
       codeslayer_show_bottom_pane (priv->codeslayer, priv->notebook);
@@ -610,7 +610,7 @@ execute_autoreconf (AutotoolsOutput *output)
 }
 
 static AutotoolsOutput*
-get_output_by_active_editor (AutotoolsEngine *engine)
+get_output_by_active_document (AutotoolsEngine *engine)
 {
   AutotoolsEnginePrivate *priv;
   CodeSlayer *codeslayer;
@@ -626,7 +626,7 @@ get_output_by_active_editor (AutotoolsEngine *engine)
       dialog =  gtk_message_dialog_new (NULL, 
                                         GTK_DIALOG_MODAL,
                                         GTK_MESSAGE_ERROR, GTK_BUTTONS_OK,
-                                        "There are no open editors. Not able to determine what project to execute command against.");
+                                        "There are no open documents. Not able to determine what project to execute command against.");
       gtk_dialog_run (GTK_DIALOG (dialog));
       gtk_widget_destroy (dialog);
       return NULL;
