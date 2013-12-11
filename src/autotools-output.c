@@ -38,8 +38,8 @@ typedef struct _AutotoolsOutputPrivate AutotoolsOutputPrivate;
 
 struct _AutotoolsOutputPrivate
 {
-  AutotoolsConfig *config;
-  CodeSlayer             *codeslayer;
+  AutotoolsConfig          *config;
+  CodeSlayer               *codeslayer;
   CodeSlayerDocumentLinker *linker;
 };
 
@@ -72,7 +72,7 @@ autotools_output_finalize (AutotoolsOutput *output)
 
 GtkWidget*
 autotools_output_new (AutotoolsConfig *config, 
-                      CodeSlayer             *codeslayer)
+                      CodeSlayer      *codeslayer)
 {
   GtkWidget *output;
   AutotoolsOutputPrivate *priv;

@@ -136,22 +136,22 @@ add_menu_items (AutotoolsProjectsPopup *projects_popup,
   GtkWidget *configure_item;
   GtkWidget *autoreconf_item;
 
-  make_item = codeslayer_menu_item_new_with_label ("make");
+  make_item = codeslayer_menu_item_new_with_label ("Make");
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), make_item);
 
-  make_install_item = codeslayer_menu_item_new_with_label ("make install");
+  make_install_item = codeslayer_menu_item_new_with_label ("Make Install");
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), make_install_item);
   
-  make_clean_item = codeslayer_menu_item_new_with_label ("make clean");
+  make_clean_item = codeslayer_menu_item_new_with_label ("Make Clean");
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), make_clean_item);
   
   separator = gtk_separator_menu_item_new ();
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), separator);
 
-  configure_item = codeslayer_menu_item_new_with_label ("configure");
+  configure_item = codeslayer_menu_item_new_with_label ("Configure");
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), configure_item);
 
-  autoreconf_item = codeslayer_menu_item_new_with_label ("autoreconf");
+  autoreconf_item = codeslayer_menu_item_new_with_label ("Autoreconf");
   gtk_menu_shell_append (GTK_MENU_SHELL (submenu), autoreconf_item);
 
   g_signal_connect_swapped (G_OBJECT (make_item), "projects-menu-selected", 
