@@ -29,13 +29,6 @@ typedef struct
   gchar           *text;
 } OutputContext;
 
-typedef struct
-{
-  AutotoolsOutput *output;
-  gint id;  
-  gchar *text;
-} Process;
-
 #define MAIN "main"
 #define CONFIGURE_FILE "configure_file"
 #define CONFIGURE_PARAMETERS "configure_parameters"
@@ -95,9 +88,6 @@ static gboolean clear_text                           (AutotoolsOutput      *outp
 static gboolean append_text                          (OutputContext        *context);
 static void     destroy_text                         (OutputContext        *context);
 static gboolean create_links                         (AutotoolsOutput      *output);
-static gboolean start_process                        (Process              *process);
-static gboolean stop_process                         (Process              *process);
-static void destroy_process                          (Process              *process);                                  
                                                    
 #define AUTOTOOLS_ENGINE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), AUTOTOOLS_ENGINE_TYPE, AutotoolsEnginePrivate))
@@ -494,22 +484,13 @@ execute_make (AutotoolsOutput *output)
   AutotoolsConfig *config;
   const gchar *build_folder;             
   gchar *command;
-  Process *process;
 
-  process = g_malloc (sizeof (Process));
-  process->output = output;
-  process->text = g_strdup (_("Make..."));
-
-  g_idle_add ((GSourceFunc) start_process, process);
-  
   config = autotools_output_get_config (output);
   build_folder = autotools_config_get_build_folder (config);
   
   command = g_strconcat ("cd ", build_folder, ";make 2>&1", NULL);
   run_command (output, command);
   g_free (command);
-
-  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) stop_process, process, (GDestroyNotify) destroy_process);
 }
 
 static void
@@ -518,13 +499,6 @@ execute_make_install (AutotoolsOutput *output)
   AutotoolsConfig *config;
   const gchar *build_folder;             
   gchar *command;  
-  Process *process;
-
-  process = g_malloc (sizeof (Process));
-  process->output = output;
-  process->text = g_strdup (_("Make Install..."));
-
-  g_idle_add ((GSourceFunc) start_process, process);
   
   config = autotools_output_get_config (output);
   build_folder = autotools_config_get_build_folder (config);
@@ -532,8 +506,6 @@ execute_make_install (AutotoolsOutput *output)
   command = g_strconcat ("cd ", build_folder, ";make install 2>&1", NULL);
   run_command (output, command);
   g_free (command);   
-  
-  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) stop_process, process, (GDestroyNotify) destroy_process); 
 }
 
 static void
@@ -542,13 +514,6 @@ execute_make_clean (AutotoolsOutput *output)
   AutotoolsConfig *config;
   const gchar *build_folder;             
   gchar *command;
-  Process *process;
-
-  process = g_malloc (sizeof (Process));
-  process->output = output;
-  process->text = g_strdup (_("Make Clean..."));
-
-  g_idle_add ((GSourceFunc) start_process, process);
   
   config = autotools_output_get_config (output);
   build_folder = autotools_config_get_build_folder (config);
@@ -556,8 +521,6 @@ execute_make_clean (AutotoolsOutput *output)
   command = g_strconcat ("cd ", build_folder, ";make clean 2>&1", NULL);
   run_command (output, command);
   g_free (command);
-  
-  g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, (GSourceFunc) stop_process, process, (GDestroyNotify) destroy_process); 
 }
 
 static void
@@ -705,33 +668,6 @@ run_command (AutotoolsOutput *output,
     }
     
   g_idle_add ((GSourceFunc) create_links, output);
-}
-
-static gboolean 
-start_process (Process *process)
-{
-  gint id;
-  CodeSlayer *codeslayer; 
-  codeslayer = autotools_output_get_codeslayer (process->output);
-  id = codeslayer_add_to_process_bar (codeslayer, process->text, NULL, NULL);
-  process->id = id;
-  return FALSE;
-}
-
-static gboolean 
-stop_process (Process *process)
-{
-  CodeSlayer *codeslayer; 
-  codeslayer = autotools_output_get_codeslayer (process->output);
-  codeslayer_remove_from_process_bar (codeslayer, process->id);
-  return FALSE;
-}
-
-static void 
-destroy_process (Process *process)
-{
-  g_free (process->text);
-  g_free (process);
 }
 
 static gboolean 
